@@ -1,11 +1,10 @@
 
-# Install
+Example showing how to use Terraform and Localstack Community Edition for local development using Amazon API.
+
+Install and Startup localstack:
 
 ```
 python3 -m pip install localstack
-```
-
-```
 python3 -m localstack.cli.main  start
 
      __                     _______ __             __
@@ -31,9 +30,70 @@ Ready.
 2021-11-30T09:52:20.855:INFO:bootstrap.py: Execution of "start_runtime_components" took 513.44ms
 ```
 
+Verify AWS API Endpoints
+
+```
+curl -s localhost:4566/health | python -mjson.tool
+{
+    "features": {
+        "initScripts": "initialized"
+    },
+    "services": {
+        "acm": "available",
+        "apigateway": "available",
+        "cloudformation": "available",
+        "cloudwatch": "available",
+        "config": "available",
+        "dynamodb": "available",
+        "dynamodbstreams": "available",
+        "ec2": "available",
+        "es": "available",
+        "events": "available",
+        "firehose": "available",
+        "iam": "available",
+        "kinesis": "available",
+        "kms": "available",
+        "lambda": "available",
+        "logs": "available",
+        "redshift": "available",
+        "resource-groups": "available",
+        "resourcegroupstaggingapi": "available",
+        "route53": "available",
+        "s3": "running",
+        "secretsmanager": "available",
+        "ses": "available",
+        "sns": "running",
+        "sqs": "running",
+        "ssm": "available",
+        "stepfunctions": "available",
+        "sts": "available",
+        "support": "available",
+        "swf": "available"
+    }
+}
+
+```
+
+Setup terraform:
+
 ```
 brew install tfenv
 tfenv install latest
 tfenv use latest
 ```
 
+Setup S3 buckets:
+
+```
+aws --endpoint-url=http://localhost:4566 s3 mb s3://sample-bucket
+aws --endpoint-url=http://localhost:4566 s3 ls
+aws --endpoint-url=http://localhost:4566 s3api create-bucket --bucket archive-bucket-old
+```
+
+Setup topics, queues, subscriptions:
+
+```
+aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name sample-queue2
+aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name sample-queue-sns
+aws --endpoint-url=http://localhost:4566 sns create-topic --name sample-topic
+```
